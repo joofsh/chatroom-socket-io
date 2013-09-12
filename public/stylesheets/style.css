@@ -1,0 +1,36 @@
+body {
+  font-family: "Helvetica Neue", "Lucida Grande", "Arial";
+  font-size: 13px;
+  text-align: center;
+  text-stroke: 1px rgba(255,255,255,0.1);
+  color: #555;
+}
+h1,
+h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #343434;
+}
+h1 {
+  text-shadow: 1px 2px 2px #ddd;
+  font-size: 60px;
+  margin-bottom: 20px;
+}
+textarea {
+  resize: none;
+  width: 90%;
+  margin-right: 5px;
+}
+#chatroom {
+  overflow-y: scroll;
+  height: 200px;
+  border: 2px solid rgba(0,0,0,0.3);
+  margin: 2px auto;
+}
+#chatroom p {
+  text-align: left;
+  margin: 0 0 0 5px;
+}
+#chatroom p.current-user {
+  color: #008000;
+}
