@@ -24,9 +24,20 @@ function update_user(user) {
   }
 }
 
+function update_participants() {
+  for(var i = 0; i < users.length; i++) {
+    user = users[i];
+    user_li = $('#' + user.id);
+    if( user_li.length == 0) {
+      $('#participants').append("<li id='" + user.id + "' class='list-group-item'>" + user.user_name + "</li>");
+    } else if ( user.length > 0 && user_li.first().html() != user.user_name) {
+      user.first().html(user.user_name);
+    }
+  }
+}
 
 function init() {
-  var socket = io.connect('http://localhost');
+  var socket = io.connect(document.URL);
   if(localStorage['chat-user-name']) {
     window.user_name = localStorage['chat-user-name'];
     $('#user-name').val(user_name);
@@ -66,22 +77,20 @@ function init() {
     });
 
     socket.on('user joined', function(data) {
-      users.push(data.user)
+      window.users = data.users
       console.log('User joined!', users);
       $('#chatroom').append('<p>A new user has joined the chatroom </p>')
     });
 
     socket.on('user updated', function(data) {
-      $('#chatroom').append('<p>' + data.message + '</p>')
-      update_user(data.user)
-
-      users.forEach(function(user, i) {
-        if(user.id === data.user.id) users[i] = data.user
-      });
+      $('#chatroom').append('<p>' + data.message + '</p>');
+      update_user(data.user);
+      update_participants();
     });
 
     socket.on('user disconnected', function(data) {
-      users.remove(data.id)
+      users.remove(data.id);
+      $('#' + data.id).remove()
       console.log('User disconnected:', data);
     });
 

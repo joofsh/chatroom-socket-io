@@ -4,7 +4,7 @@ block content
   h1= title
   .container
     .row
-      .col-lg-8
+      .col-lg-9
           form#user-name-form
             span Your Name:
             input#user-name(type='text', value='Anonymous')
@@ -13,11 +13,12 @@ block content
           form#message-form
             textarea#new-message(rows='2', cols='50', maxlength='200')
             input.btn.btn-success(type='button', value='Send')
-      .col-lg-4
-        b Participants
-        br
-        div#participants
-          - for user in users
-            - var id = user.id
-            p(id=id)= user.user_name
+      .col-lg-3
+        .panel.panel-default
+          .panel-heading
+            h4 Participants
+          ul.list-group#participants
+            - for user in users
+              - var id = user.id
+              li.list-group-item(id=id)= user.user_name
 

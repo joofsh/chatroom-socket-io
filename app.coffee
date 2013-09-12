@@ -3,6 +3,9 @@ app = express()
 server = require('http').createServer(app)
 io = require('socket.io').listen(server)
 
+io.configure ->
+  io.set("transports", ["xhr-polling"])
+  io.set("polling duration", 10)
 
 app.configure ->
   app.set 'views', "#{__dirname}/views"
@@ -33,7 +36,8 @@ io.sockets.on 'connection', (socket) ->
     console.info 'Join Event:', data.user_name
     users.push(data)
     io.sockets.emit 'user joined',
-      user: data
+      user: data,
+      users: users
 
   socket.on 'chat message', (data) ->
     console.info 'Message sent:', data.message
@@ -47,13 +51,14 @@ io.sockets.on 'connection', (socket) ->
       user: data.user
       message: "#{data.old_user_name} has changed their username to #{data.new_user_name}"
 
-  socket.on 'disconnect', ->
+  socket.on 'disconnect', (data) ->
     users.remove(users.indexOf(socket.id))
     io.sockets.emit 'user disconnected', {id: socket.id}
 
 
 
-server.listen 3000
+port = process.env.PORT || 3000
+server.listen(port)
 
 Array::remove = (from, to) ->
   rest = @slice((to or from) + 1 or @length)
