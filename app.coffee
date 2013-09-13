@@ -1,4 +1,5 @@
-express= require('express')
+coffee_middleware = require('coffee-middleware')
+express = require('express')
 app = express()
 server = require('http').createServer(app)
 io = require('socket.io').listen(server)
@@ -13,6 +14,7 @@ app.configure ->
   app.use express.bodyParser()
   app.use express.methodOverride()
   app.use require('stylus').middleware({src: "#{__dirname}/public"})
+  app.use coffee_middleware({src: "#{__dirname}/public", compress: true})
   app.use app.router
   app.use express.static("#{__dirname}/public")
 

@@ -2,7 +2,7 @@ extends layout
 
 block content
   h1= title
-  .container
+  .container(ng-controller='ChatController')
     .row
       .col-lg-9
           form#user-name-form
@@ -18,7 +18,6 @@ block content
           .panel-heading
             h4 Participants
           ul.list-group#participants
-            - for user in users
-              - var id = user.id
-              li.list-group-item(id=id)= user.user_name
+            li.list-group-item(id='foo', ng-repeat='user in users()')
+              p {{user.user_name}}
 

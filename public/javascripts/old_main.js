@@ -1,3 +1,4 @@
+
 function build_message(user, message, with_name) {
   var chatroom = $('#chatroom');
   var user_str = '';
@@ -80,6 +81,7 @@ function init() {
       window.users = data.users
       console.log('User joined!', users);
       $('#chatroom').append('<p>A new user has joined the chatroom </p>')
+      update_participants();
     });
 
     socket.on('user updated', function(data) {
