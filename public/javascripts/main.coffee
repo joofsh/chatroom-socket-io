@@ -1,5 +1,5 @@
 @app = angular.module('chat_room', [])
-@socket = io.connect(document.URL)
+@socket = io.connect(document.URL, {'sync disconnect on unload' : true})
 
 @ChatController = ($scope, User, Message) ->
   window.scope = $scope
