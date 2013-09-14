@@ -3,14 +3,30 @@
 
 @ChatController = ($scope, User, Message) ->
   window.scope = $scope
+  $scope.Message = Message
+  $scope.User = User
   $scope.messages = Message.all
   $scope.users = User.all
-
   $scope.user_name = (if localStorage['user_name'] then localStorage['user_name'] else 'Anonymous')
 
-  $scope.fetch_user = (id) ->
-    for user in $scope.users
-      return user if user.id is id
+  $scope.update_user_name = ->
+    user = User.fetch($scope.session_id)
+    old_user_name = user.user_name
+    user.user_name = $scope.user_name
+    localStorage.setItem('user_name', $scope.user_name)
+    socket.emit 'user name update',
+      user: user
+      old_user_name: old_user_name
+      new_user_name: $scope.user_name
+
+  $scope.send_message = (message) ->
+    socket.emit 'chat message',
+      id: $scope.session_id
+      message: message
+
+  $scope.current_user = (user) ->
+    return false unless user
+    user.id is $scope.session_id
 
   socket.on 'connect', ->
     console.log 'Connected', socket
@@ -21,25 +37,27 @@
 
   socket.on 'chat message', (data) ->
     console.log 'Message received:', data.message
-    Message.add(data.message, User.fetch(data.id), true)
+    $scope.$apply(Message.add(data.message, User.fetch(data.id), true))
 
 
   socket.on 'user joined', (data) ->
-    $scope.$apply(User.set(data.users))
+    User.set(data.users)
     console.log 'User joined!', data.users
+    $scope.$apply(Message.add("#{data.user.user_name} has joined the chatroom", null, false))
     # TODO: Add notification that user joined
     # TODO: Update participants list
 
   socket.on 'user disconnected', (data) ->
-    $scope.$apply(User.remove(data.id))
-    console.log 'User disconnected', data
+    User.set(data.users)
+    user = User.fetch(data.id)
+    $scope.$apply(Message.add("#{user.user_name} has left the channel", null, false))
+    console.log 'User disconnected', data.id
+    console.log 'Users remaining:', User.all().length
     # TODO: Remove user from participants list
 
-
-
-
-
-
+  socket.on 'user updated', (data) ->
+    User.set(data.users)
+    $scope.$apply(Message.add(data.message, null, false))
 
 ChatController.$inject = ['$scope', 'User', 'Message']
 
@@ -60,15 +78,12 @@ ChatController.$inject = ['$scope', 'User', 'Message']
   update: (user) ->
     for u, i in users
       if user.id is u.id
-        u[i] = user
-        true
-      else
-        false
+        users[i] = user
+        return user
+    undefined
 
   remove: (id) ->
     users = _.without(users, this.fetch(id))
-
-
 
 @app.factory 'Message', ->
   messages = []
@@ -82,4 +97,30 @@ ChatController.$inject = ['$scope', 'User', 'Message']
       with_name: with_name
     messages.push message_obj
 
+@app.directive 'sendMessage', ->
+  (scope, element, attrs) ->
+
+    send_message = ->
+      message = element.val()
+      scope.send_message(message) if message.replace(new RegExp(' ', 'g'),'').length > 0
+      element.val('')
+
+    element.on 'keypress', (e) ->
+      if e.which is 13
+        e.preventDefault()
+        send_message()
+
+    $('#send-message').on 'click', ->
+      send_message()
+
+@app.directive 'updateUserName', ->
+  (scope, element, attrs) ->
+
+    element.on 'keypress', (e) ->
+      if e.which is 13
+        e.preventDefault()
+        scope.update_user_name()
+
+    $('#update-user-name').on 'click', ->
+      scope.update_user_name()
 

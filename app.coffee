@@ -33,6 +33,13 @@ fetch_user = (id) ->
 remove_user = (id) ->
   users.remove(users.indexOf(id))
 
+update_user = (user) ->
+  for u, i in users
+    if u.id is user.id
+      users[i] = user
+      return user
+  undefined
+
 io.sockets.on 'connection', (socket) ->
   socket.on 'join', (data) ->
     console.info 'Join Event:', data.user_name
@@ -44,18 +51,22 @@ io.sockets.on 'connection', (socket) ->
   socket.on 'chat message', (data) ->
     console.info 'Message sent:', data.message
     io.sockets.emit 'chat message',
-      user_id: socket.id
+      id: socket.id
       message: data.message
 
   socket.on 'user name update', (data) ->
     console.info "Switching user_name from #{data.old_user_name} to #{data.new_user_name}"
+    update_user(data.user)
     io.sockets.emit 'user updated',
       user: data.user
+      users: users
       message: "#{data.old_user_name} has changed their username to #{data.new_user_name}"
 
   socket.on 'disconnect', (data) ->
-    users.remove(users.indexOf(socket.id))
-    io.sockets.emit 'user disconnected', {id: socket.id}
+    remove_user(users.indexOf(socket.id))
+    io.sockets.emit 'user disconnected',
+      id: socket.id
+      users: users
 
 
 

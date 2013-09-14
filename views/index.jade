@@ -7,12 +7,17 @@ block content
       .col-lg-9
           form#user-name-form
             span Your Name:
-            input#user-name(type='text', value='Anonymous')
+            input#user-name(type='text', ng-model='user_name', update-user-name)
             input#update-user-name.btn(type='button', value='update')
           #chatroom
+            ul
+              li(ng-repeat='message in messages()')
+                p(ng-class='{green: current_user(message.user), red: !message.with_name}')
+                  b(ng-show='message.with_name')= "{{message.user.user_name}}: "
+                  {{message.message}}
           form#message-form
-            textarea#new-message(rows='2', cols='50', maxlength='200')
-            input.btn.btn-success(type='button', value='Send')
+            textarea#new-message(rows='2', cols='50', maxlength='200', send-message)
+            input.btn.btn-success#send-message(type='button', value='Send')
       .col-lg-3
         .panel.panel-default
           .panel-heading
