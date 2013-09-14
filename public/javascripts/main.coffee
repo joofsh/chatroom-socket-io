@@ -44,16 +44,13 @@
     User.set(data.users)
     console.log 'User joined!', data.users
     $scope.$apply(Message.add("#{data.user.user_name} has joined the chatroom", null, false))
-    # TODO: Add notification that user joined
-    # TODO: Update participants list
 
   socket.on 'user disconnected', (data) ->
-    User.set(data.users)
     user = User.fetch(data.id)
+    User.set(data.users)
     $scope.$apply(Message.add("#{user.user_name} has left the channel", null, false))
     console.log 'User disconnected', data.id
     console.log 'Users remaining:', User.all().length
-    # TODO: Remove user from participants list
 
   socket.on 'user updated', (data) ->
     User.set(data.users)
