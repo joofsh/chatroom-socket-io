@@ -14,7 +14,11 @@
 
   io.configure(function() {
     io.set("transports", ["xhr-polling"]);
-    return io.set("polling duration", 10);
+    io.set("polling duration", 10);
+    io.enable('browser client minification');
+    io.enable('browser client etag');
+    io.enable('browser client gzip');
+    return io.set('log level', 1);
   });
 
   app.configure(function() {
