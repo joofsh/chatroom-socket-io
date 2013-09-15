@@ -19,10 +19,11 @@
       old_user_name: old_user_name
       new_user_name: $scope.user_name
 
-  $scope.send_message = (message) ->
+  $scope.send_message = (message, with_name) ->
     socket.emit 'chat message',
-      id: $scope.session_id
+      user: User.fetch($scope.session_id)
       message: message
+      with_name: with_name
 
   $scope.current_user = (user) ->
     return false unless user
@@ -37,18 +38,19 @@
 
   socket.on 'chat message', (data) ->
     console.log 'Message received:', data.message
-    $scope.$apply(Message.add(data.message, User.fetch(data.id), true))
+    $scope.$apply(Message.add(data))
 
 
   socket.on 'user joined', (data) ->
     User.set(data.users)
     console.log 'User joined!', data.users
-    $scope.$apply(Message.add("#{data.user.user_name} has joined the chatroom", null, false))
+    Message.set(data.messages) if Message.all().length is 0
+    $scope.$apply(Message.add(data.message))
 
   socket.on 'user disconnected', (data) ->
     user = User.fetch(data.id)
     User.set(data.users)
-    $scope.$apply(Message.add("#{user.user_name} has left the channel", null, false))
+    $scope.$apply(Message.add(data.message))
     console.log 'User disconnected', data.id
     console.log 'Users remaining:', User.all().length
 
@@ -87,19 +89,17 @@ ChatController.$inject = ['$scope', 'User', 'Message']
 
   all: -> messages
 
-  add: (message, user, with_name) ->
-    message_obj =
-      message: message
-      user: user
-      with_name: with_name
-    messages.push message_obj
+  set: (messages_arr) -> messages = messages_arr
+
+  add: (message) ->
+    messages.push message
 
 @app.directive 'sendMessage', ->
   (scope, element, attrs) ->
 
     send_message = ->
       message = element.val()
-      scope.send_message(message) if message.replace(new RegExp(' ', 'g'),'').length > 0
+      scope.send_message(message, true) if message.replace(new RegExp(' ', 'g'),'').length > 0
       element.val('')
 
     element.on 'keypress', (e) ->
@@ -120,4 +120,13 @@ ChatController.$inject = ['$scope', 'User', 'Message']
 
     $('#update-user-name').on 'click', ->
       scope.update_user_name()
+
+@app.directive 'scrollBottom', ->
+  (scope, element, attrs) ->
+
+    #Watch the length of the messages array. As it increases, force the chatroom to
+    # scroll to the bottom
+    scope.$watch 'messages().length', (new_val, old_val) ->
+      element[0].scrollTop = element[0].scrollHeight
+
 
