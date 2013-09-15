@@ -25,13 +25,14 @@ app.get '/', (req, res) ->
     users: users
 
 users = []
+messages = []
 
 fetch_user = (id) ->
   for u in users
     return u if u.id is id
 
 remove_user = (id) ->
-  users.remove(users.indexOf(id))
+  users.remove(users.indexOf(fetch_user(id)))
 
 update_user = (user) ->
   for u, i in users
@@ -47,12 +48,13 @@ io.sockets.on 'connection', (socket) ->
     io.sockets.emit 'user joined',
       user: data,
       users: users
+      messages: messages
+      message: {user: data, message: "#{data.user_name} has joined the chatroom", with_name: false}
 
   socket.on 'chat message', (data) ->
     console.info 'Message sent:', data.message
-    io.sockets.emit 'chat message',
-      id: socket.id
-      message: data.message
+    messages.push(data)
+    io.sockets.emit 'chat message', data
 
   socket.on 'user name update', (data) ->
     console.info "Switching user_name from #{data.old_user_name} to #{data.new_user_name}"
@@ -60,20 +62,22 @@ io.sockets.on 'connection', (socket) ->
     io.sockets.emit 'user updated',
       user: data.user
       users: users
-      message: "#{data.old_user_name} has changed their username to #{data.new_user_name}"
+      message: {user: data.user, message: "#{data.old_user_name} has changed their username to #{data.new_user_name}", with_name: false}
 
   socket.on 'disconnect', (data) ->
-    remove_user(users.indexOf(socket.id))
+    user = fetch_user(socket.id)
+    remove_user(socket.id)
     io.sockets.emit 'user disconnected',
       id: socket.id
       users: users
+      message: {user: user, message: "#{user.user_name} has left the channel", with_name: false}
 
 
 
 port = process.env.PORT || 3000
 server.listen(port)
 
-Array::remove = (from, to) ->
-  rest = @slice((to or from) + 1 or @length)
-  @length = (if from < 0 then (@length + from) else from)
+Array::remove = (index) ->
+  rest = @slice(index + 1)
+  @length = (if index < 0 then (@length + index) else index)
   @push.apply this, rest
