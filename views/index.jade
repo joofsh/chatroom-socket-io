@@ -9,7 +9,7 @@ block content
             span Your Name:
             input#user-name(type='text', ng-model='user_name', update-user-name)
             input#update-user-name.btn(type='button', value='update')
-          #chatroom
+          #chatroom(scroll-bottom)
             ul
               li(ng-repeat='message in messages()')
                 p(ng-class='{green: current_user(message.user), red: !message.with_name}')
