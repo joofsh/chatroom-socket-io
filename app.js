@@ -2,6 +2,8 @@
 (function() {
   var app, coffee_middleware, express, fetch_user, io, messages, port, remove_user, server, update_user, users;
 
+  console.log("Starting app in: " + process.env.NODE_ENV + " mode");
+
   coffee_middleware = require('coffee-middleware');
 
   express = require('express');
@@ -124,7 +126,7 @@
     });
   });
 
-  port = process.env.PORT || 3000;
+  port = process.env.NODE_ENV === 'production' ? 80 : 3000;
 
   server.listen(port);
 
