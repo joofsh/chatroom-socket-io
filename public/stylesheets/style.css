@@ -4,12 +4,13 @@ body {
   text-align: center;
   text-stroke: 1px rgba(255,255,255,0.1);
   color: #555;
+  background-image: url("http://digitalfireflymarketing.com/sites/default/files/nodejs_0.png");
 }
 h1,
 h2 {
   margin: 0;
   font-size: 22px;
-  color: #343434;
+  color: #fff;
 }
 h1 {
   text-shadow: 1px 2px 2px #ddd;
@@ -21,11 +22,15 @@ textarea {
   width: 90%;
   margin-right: 5px;
 }
+#user-name-form span {
+  color: #fff;
+}
 #chatroom {
   overflow-y: scroll;
   height: 200px;
   border: 2px solid rgba(0,0,0,0.3);
   margin: 2px auto;
+  background-color: #fff;
 }
 #chatroom ul {
   padding: 0;
