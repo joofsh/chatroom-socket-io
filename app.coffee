@@ -7,14 +7,6 @@ app = express()
 server = require('http').createServer(app)
 io = require('socket.io').listen(server)
 
-io.configure ->
-  io.set("transports", ["xhr-polling"])
-  io.set("polling duration", 10)
-  io.enable('browser client minification')
-  io.enable('browser client etag')
-  io.enable('browser client gzip')
-  io.set('log level', 1)
-
 app.configure ->
   app.set 'views', "#{__dirname}/views"
   app.set 'view engine', 'jade'
