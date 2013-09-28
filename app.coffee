@@ -1,3 +1,6 @@
+console.log "Starting app in: #{process.env.NODE_ENV} mode"
+
+
 coffee_middleware = require('coffee-middleware')
 express = require('express')
 app = express()
@@ -78,7 +81,7 @@ io.sockets.on 'connection', (socket) ->
 
 
 
-port = process.env.PORT || 3000
+port = process.env.NODE_ENV === 'production' ? 80 : 3000
 server.listen(port)
 
 Array::remove = (index) ->
