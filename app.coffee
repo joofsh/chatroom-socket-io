@@ -81,7 +81,7 @@ io.sockets.on 'connection', (socket) ->
 
 
 
-port = process.env.NODE_ENV === 'production' ? 80 : 3000
+port = process.env.NODE_ENV is 'production' then 80 else 3000
 server.listen(port)
 
 Array::remove = (index) ->
